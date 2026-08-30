@@ -5,20 +5,17 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: write-all
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./flutter_app
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -34,25 +31,26 @@ jobs:
 
       - name: Clean & Generate Fresh Android Project
         run: |
+          cd flutter_app
           rm -rf android
           flutter create --platforms=android --org com.example .
 
       - name: Get Dependencies
-        run: flutter pub get
+        run: |
+          cd flutter_app
+          flutter pub get
 
       - name: Build Release APK
-        run: flutter build apk --release
+        run: |
+          cd flutter_app
+          flutter build apk --release
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyProgress-Android-APK
-          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Create GitHub Release & Upload APK
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.0
-          name: "My Progress App v1.0.0"
-          body: "Official installable release APK for My Progress Flutter application."
-          files: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Commit and Push Compiled APK to Main
+        run: |
+          mkdir -p released_apk
+          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk released_apk/app-release.apk
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add released_apk/app-release.apk
+          git commit -m "Automated build: add app-release.apk [skip ci]" || echo "No changes to commit"
+          git push origin main
