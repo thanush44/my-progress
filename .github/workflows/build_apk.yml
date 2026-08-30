@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,6 +19,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -38,8 +43,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Release APK
-        run: |
-          flutter build apk --release > build_log.txt 2>&1 || (cat build_log.txt && exit 1)
+        run: flutter build apk --release
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -47,9 +51,14 @@ jobs:
           name: MyProgress-Android-APK
           path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Upload Build Log on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Flutter-Build-Log
-          path: flutter_app/build_log.txt
+      - name: Publish APK to Release Branch
+        run: |
+          cd ..
+          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk app-release.apk
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout --orphan release
+          git reset
+          git add app-release.apk
+          git commit -m "Automated build app-release.apk"
+          git push origin release --force
