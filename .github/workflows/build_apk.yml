@@ -19,8 +19,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -51,14 +49,10 @@ jobs:
           name: MyProgress-Android-APK
           path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Publish APK to Release Branch
-        run: |
-          cd ..
-          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk app-release.apk
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git checkout --orphan release
-          git reset
-          git add app-release.apk
-          git commit -m "Automated build app-release.apk"
-          git push origin release --force
+      - name: Create GitHub Release & Upload APK
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0
+          name: "My Progress App v1.0.0"
+          body: "Official installable release APK for My Progress Flutter application."
+          files: flutter_app/build/app/outputs/flutter-apk/app-release.apk
