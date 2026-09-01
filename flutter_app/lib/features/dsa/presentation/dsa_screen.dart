@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../utils/date_utils.dart';
-import '../services/storage_service.dart';
-import '../widgets/day_counter_sheet.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/streak_utils.dart';
+import '../../../core/services/storage_service.dart';
+import 'widgets/day_counter_sheet.dart';
 
 class DsaScreen extends StatefulWidget {
   const DsaScreen({Key? key}) : super(key: key);
@@ -83,6 +84,8 @@ class _DsaScreenState extends State<DsaScreen> {
       if (count > 0) activeDays++;
     }
 
+    final streakStats = StreakUtils.calculateStreak(_dsaData);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -97,6 +100,39 @@ class _DsaScreenState extends State<DsaScreen> {
           const Text(
             'Track your daily algorithm & problem solving consistency.',
             style: TextStyle(fontSize: 13, color: AppTheme.slateMuted),
+          ),
+          const SizedBox(height: 16),
+
+          // Streak Metrics Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildStreakCard(
+                  '🔥 Current',
+                  '${streakStats.currentStreak}',
+                  'Days',
+                  AppTheme.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildStreakCard(
+                  '🏆 Best',
+                  '${streakStats.longestStreak}',
+                  'Days',
+                  AppTheme.primaryDark,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildStreakCard(
+                  '⚡ Solved',
+                  '${streakStats.totalSolved}',
+                  'Total',
+                  AppTheme.emerald,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -265,7 +301,7 @@ class _DsaScreenState extends State<DsaScreen> {
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w900,
-                                      color: _getTextColor(count).withOpacity(0.85),
+                                      color: _getTextColor(count).withValues(alpha: 0.85),
                                     ),
                                   ),
                                 ),
@@ -292,6 +328,49 @@ class _DsaScreenState extends State<DsaScreen> {
         color: color,
         borderRadius: BorderRadius.circular(4),
         border: color == Colors.white ? Border.all(color: AppTheme.borderLight) : null,
+      ),
+    );
+  }
+
+  Widget _buildStreakCard(String title, String value, String unit, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: accentColor),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.primaryDark),
+              ),
+              const SizedBox(width: 2),
+              Text(
+                unit,
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.slateMuted),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -7,27 +7,43 @@ The complete **Flutter (Dart)** application for **My Progress** has been generat
 ## 📱 Application Code Architecture
 
 ```text
-d:/projects/my progress/flutter_app/
-├── pubspec.yaml                 # Dependencies (shared_preferences, intl, google_fonts)
+flutter_app/
+├── pubspec.yaml                 # Dependencies (shared_preferences, intl, google_fonts, audioplayers, file_picker)
+├── assets/
+│   └── icon/                    # Master App Icon asset
 ├── lib/
-│   ├── main.dart                # App entry point, Bottom Navigation Shell & Alarm ticker
-│   ├── theme/
-│   │   └── app_theme.dart       # Dark Green + Light Green + White theme definition
-│   ├── utils/
-│   │   └── date_utils.dart      # Leap year math, Year progress dot calculations & stats
-│   ├── services/
-│   │   └── storage_service.dart # Persistent storage for Alarm, DSA counts & Daily Notes
-│   ├── screens/
-│   │   ├── home_screen.dart     # Present date, Year dots (365/366), Year/Month/Week stats
-│   │   ├── alarm_screen.dart    # Time picker, toggle switch, test alarm button
-│   │   ├── dsa_screen.dart      # Month selector, Github contribution grid, counter bottom sheet
-│   │   └── notes_screen.dart    # Date notes editor, character counter, search & history
-│   └── widgets/
-│       ├── alarm_modal.dart     # Ringing alarm dialog & paragraph challenge validator
-│       └── day_counter_sheet.dart # Bottom sheet modal for adjusting DSA count per date
+│   ├── main.dart                # App entry point, Material Theme & Bottom Navigation Shell
+│   ├── core/
+│   │   ├── theme/
+│   │   │   └── app_theme.dart       # Light & OLED Dark Green theme definitions
+│   │   ├── services/
+│   │   │   ├── audio_service.dart   # Looped background alarm audio playback engine
+│   │   │   └── storage_service.dart # Persistent storage & JSON backup export/import
+│   │   └── utils/
+│   │       ├── date_utils.dart      # Leap year math, Year progress dot calculations & stats
+│   │       └── streak_utils.dart    # Consecutive & longest streak calculation engine
+│   └── features/
+│       ├── home/
+│       │   └── presentation/
+│       │       ├── home_screen.dart # Interactive 365/366 day dot grid & stats
+│       │       └── widgets/day_snapshot_sheet.dart # Day inspection sheet with DSA & note preview
+│       ├── alarm/
+│       │   └── presentation/
+│       │       ├── alarm_screen.dart # Time picker, ringtone selector & affirmation editor
+│       │       └── widgets/alarm_modal.dart # Looped alarm dialog & anti-paste challenge
+│       ├── dsa/
+│       │   └── presentation/
+│       │       ├── dsa_screen.dart   # Streak badges, monthly slider & contribution heat map
+│       │       └── widgets/day_counter_sheet.dart # Modal sheet for adjusting problem count
+│       └── notes/
+│           └── presentation/
+│               └── notes_screen.dart # Debounced auto-saving notes & JSON backup modal
+├── test/
+│   └── unit/                    # Automated unit tests (date math, challenge validation, streaks)
 └── android/
     └── app/src/main/
-        └── AndroidManifest.xml # Android permissions and metadata
+        ├── AndroidManifest.xml # Exact alarm, full-screen intent & wake-lock permissions
+        └── res/                 # Adaptive and standard launcher icon mipmaps
 ```
 
 ---

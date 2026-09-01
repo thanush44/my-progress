@@ -1,9 +1,33 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../utils/date_utils.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/date_utils.dart';
+import 'widgets/day_snapshot_sheet.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  final ValueChanged<int>? onNavigateTab;
+
+  const HomeScreen({Key? key, this.onNavigateTab}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  void _onDotTapped(int dayNum, int totalYearDays, int year) {
+    final date = AppDateUtils.getDateFromDayOfYear(year, dayNum);
+    DaySnapshotSheet.show(
+      context: context,
+      date: date,
+      dayOfYear: dayNum,
+      totalYearDays: totalYearDays,
+      onDataChanged: () => setState(() {}),
+      onJumpToNotes: (selectedDate) {
+        if (widget.onNavigateTab != null) {
+          widget.onNavigateTab!(3); // Index 3 is Notes
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +39,7 @@ class HomeScreen extends StatelessWidget {
 
     final totalYearDays = yearStats['totalDays'] as int;
     final currentDayNum = yearStats['currentDayNumber'] as int;
+    final currentYear = yearStats['year'] as int;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -33,7 +58,7 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryDark.withOpacity(0.2),
+                  color: AppTheme.primaryDark.withValues(alpha: 0.2),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 )
@@ -45,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
+                    color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
@@ -95,7 +120,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${yearStats['year']}',
+                            '$currentYear',
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
@@ -144,8 +169,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                     child: SingleChildScrollView(
                       child: Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
+                        spacing: 4,
+                        runSpacing: 4,
                         children: List.generate(totalYearDays, (index) {
                           final dayNum = index + 1;
                           Color dotColor;
@@ -157,7 +182,7 @@ class HomeScreen extends StatelessWidget {
                           } else if (dayNum == currentDayNum) {
                             dotColor = AppTheme.primaryMid;
                             shadow = BoxShadow(
-                              color: AppTheme.emerald.withOpacity(0.5),
+                              color: AppTheme.emerald.withValues(alpha: 0.5),
                               blurRadius: 6,
                               spreadRadius: 2,
                             );
@@ -166,21 +191,41 @@ class HomeScreen extends StatelessWidget {
                             border = Border.all(color: AppTheme.borderLight, width: 1.5);
                           }
 
-                          return Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: dotColor,
-                              shape: BoxShape.circle,
-                              border: border,
-                              boxShadow: shadow != null ? [shadow] : null,
+                          return InkWell(
+                            onTap: () => _onDotTapped(dayNum, totalYearDays, currentYear),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.5),
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: dotColor,
+                                  shape: BoxShape.circle,
+                                  border: border,
+                                  boxShadow: shadow != null ? [shadow] : null,
+                                ),
+                              ),
                             ),
                           );
                         }),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
+
+                  // User guidance helper
+                  const Center(
+                    child: Text(
+                      'Tap any dot to inspect solved problems & notes',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
                   // Dots Legend
                   Row(

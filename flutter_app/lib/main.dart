@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
-import 'services/storage_service.dart';
-import 'screens/home_screen.dart';
-import 'screens/alarm_screen.dart';
-import 'screens/dsa_screen.dart';
-import 'screens/notes_screen.dart';
-import 'widgets/alarm_modal.dart';
+import 'core/theme/app_theme.dart';
+import 'core/services/storage_service.dart';
+import 'features/home/presentation/home_screen.dart';
+import 'features/alarm/presentation/alarm_screen.dart';
+import 'features/dsa/presentation/dsa_screen.dart';
+import 'features/notes/presentation/notes_screen.dart';
+import 'features/alarm/presentation/widgets/alarm_modal.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +22,8 @@ class MyProgressApp extends StatelessWidget {
       title: 'My Progress',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
+      darkTheme: AppTheme.darkThemeData,
+      themeMode: ThemeMode.system,
       home: const MainNavigationShell(),
     );
   }
@@ -67,18 +69,21 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
         if (currentHHMM == targetTime && _lastTriggeredMinute != minuteKey) {
           _lastTriggeredMinute = minuteKey;
-          _triggerAlarmModal(settings['challengeText'] as String? ??
-              'I will stay consistent with my goals and complete my daily work today.');
+          _triggerAlarmModal(
+            settings['challengeText'] as String? ??
+                'I will stay consistent with my goals and complete my daily work today.',
+            settings['ringtonePath'] as String?,
+          );
         }
       }
     });
   }
 
-  void _triggerAlarmModal(String challengeText) {
+  void _triggerAlarmModal(String challengeText, String? ringtonePath) {
     if (_isAlarmShowing) return;
     setState(() => _isAlarmShowing = true);
 
-    AlarmModal.show(context, challengeText, () {
+    AlarmModal.show(context, challengeText, ringtonePath, () {
       setState(() => _isAlarmShowing = false);
     });
   }
@@ -86,12 +91,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const HomeScreen(),
+      HomeScreen(
+        onNavigateTab: (index) => setState(() => _currentIndex = index),
+      ),
       AlarmScreen(
         onTriggerTestAlarm: () async {
           final settings = await StorageService.getAlarmSettings();
-          _triggerAlarmModal(settings['challengeText'] as String? ??
-              'I will stay consistent with my goals and complete my daily work today.');
+          _triggerAlarmModal(
+            settings['challengeText'] as String? ??
+                'I will stay consistent with my goals and complete my daily work today.',
+            settings['ringtonePath'] as String?,
+          );
         },
       ),
       const DsaScreen(),

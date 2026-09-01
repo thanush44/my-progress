@@ -10,6 +10,8 @@ class StorageService {
     'enabled': true,
     'time': '06:30',
     'period': 'AM',
+    'ringtonePath': '',
+    'ringtoneName': 'Default Tone',
     'challengeText': 'I will stay consistent with my goals and complete my daily work today.'
   };
 
@@ -109,6 +111,50 @@ class StorageService {
       await prefs.setString(keyNotes, jsonEncode(all));
     } catch (e) {
       // Error handling
+    }
+  }
+
+  // Export all application data as portable JSON
+  static Future<String> exportBackupJson() async {
+    final alarm = await getAlarmSettings();
+    final dsa = await getAllDsaProgress();
+    final notes = await getAllNotes();
+
+    final backup = {
+      'app': 'My Progress',
+      'version': 1,
+      'exportedAt': DateTime.now().toIso8601String(),
+      'alarm': alarm,
+      'dsa': dsa,
+      'notes': notes,
+    };
+
+    return const JsonEncoder.withIndent('  ').convert(backup);
+  }
+
+  // Import application data from JSON
+  static Future<bool> importBackupJson(String rawJson) async {
+    try {
+      final decoded = jsonDecode(rawJson) as Map<String, dynamic>;
+      final prefs = await SharedPreferences.getInstance();
+
+      if (decoded.containsKey('alarm') && decoded['alarm'] is Map) {
+        await prefs.setString(keyAlarm, jsonEncode(decoded['alarm']));
+      }
+
+      if (decoded.containsKey('dsa') && decoded['dsa'] is Map) {
+        final dsaMap = (decoded['dsa'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toInt()));
+        await prefs.setString(keyDsa, jsonEncode(dsaMap));
+      }
+
+      if (decoded.containsKey('notes') && decoded['notes'] is Map) {
+        final notesMap = (decoded['notes'] as Map).map((k, v) => MapEntry(k.toString(), v.toString()));
+        await prefs.setString(keyNotes, jsonEncode(notesMap));
+      }
+
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

@@ -21,16 +21,21 @@ class AppDateUtils {
   }
 
   static int getDayOfYear(DateTime date) {
-    final diff = date.difference(DateTime(date.year, 1, 1));
-    return diff.inDays + 1;
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final startOfYear = DateTime(date.year, 1, 1);
+    return normalizedDate.difference(startOfYear).inDays + 1;
+  }
+
+  static DateTime getDateFromDayOfYear(int year, int dayOfYear) {
+    return DateTime(year, 1, 1).add(Duration(days: dayOfYear - 1));
   }
 
   static String getFormattedFullDate(DateTime date) {
     return DateFormat('EEEE, d MMMM yyyy').format(date);
   }
 
-  static String getMonthName(int month) {
-    final date = DateTime(2026, month, 1);
+  static String getMonthName(int month, [int year = 2026]) {
+    final date = DateTime(year, month, 1);
     return DateFormat('MMMM').format(date);
   }
 

@@ -23,10 +23,9 @@ class AppTheme {
         primary: primaryDark,
         secondary: emerald,
         surface: bgGreen,
-        background: const Color(0xFFF4F6F8),
       ),
       scaffoldBackgroundColor: const Color(0xFFF4F6F8),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: cardBg,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -49,6 +48,51 @@ class AppTheme {
         backgroundColor: Colors.white,
         selectedItemColor: primaryDark,
         unselectedItemColor: slateMuted,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+    );
+  }
+
+  static ThemeData get darkThemeData {
+    const darkBg = Color(0xFF08120C);
+    const darkCard = Color(0xFF102016);
+    const darkBorder = Color(0xFF1B3825);
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryMid,
+        brightness: Brightness.dark,
+        primary: emerald,
+        secondary: mint,
+        surface: const Color(0xFF0D1C12),
+      ),
+      scaffoldBackgroundColor: darkBg,
+      cardTheme: CardThemeData(
+        color: darkCard,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: darkBorder, width: 1),
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF051108),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF051108),
+        selectedItemColor: mint,
+        unselectedItemColor: Color(0xFF64748B),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
