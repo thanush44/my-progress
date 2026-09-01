@@ -34,6 +34,7 @@
 **/android/key.properties
 **/android/app/release/
 **/android/app/build/
+**/.cxx/
 
 # iOS / macOS
 **/ios/Flutter/App.framework

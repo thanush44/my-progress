@@ -91,14 +91,13 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   Future<void> _pickLocalRingtone() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.audio,
-        allowMultiple: false,
       );
 
-      if (result != null && result.files.isNotEmpty && result.files.single.path != null) {
-        final path = result.files.single.path!;
-        final name = result.files.single.name;
+      if (file != null && file.path != null) {
+        final path = file.path!;
+        final name = file.name;
 
         await _audioService.stopAlarm();
         setState(() => _isPreviewPlaying = false);
